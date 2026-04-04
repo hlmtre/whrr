@@ -1,0 +1,27 @@
+[package]
+name = "whrr"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+[[bin]]
+name = "client"
+path = "src/client.rs"
+
+[dependencies]
+defguard_wireguard_rs = "0.7"
+
+# lets remember to remove the two of you
+log = "0.4"
+env_logger = "0.11"
+
+tokio = { version = "1", features = ["full"] }
+axum = "0.7"
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1.0"
+tower-http = { version = "0.5", features = ["trace"] }
