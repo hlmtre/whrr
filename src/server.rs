@@ -34,13 +34,13 @@ struct HandshakeResponse {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
+
     let wg_api = WGApi::new(WG_IFACE.to_string())?;
     let _ = wg_api.remove_interface();
     wg_api.create_interface()?;
 
     let server_priv = Key::generate();
     let server_pub = server_priv.clone();
-
     let interface_config = InterfaceConfiguration {
         name: WG_IFACE.to_string(),
         prvkey: server_priv.to_string(),
@@ -51,9 +51,11 @@ async fn main() -> anyhow::Result<()> {
     };
     wg_api.configure_interface(&interface_config)?;
 
+    // we've created the interface, now we have to tell the system to bring it up
     std::process::Command::new("ip")
         .args(["link", "set", "up", "dev", WG_IFACE])
         .output()?;
+    // and set the ip..
     std::process::Command::new("ip")
         .args([
             "addr",
@@ -66,6 +68,8 @@ async fn main() -> anyhow::Result<()> {
 
     println!("VPN Server UP at {} ({})", PUBLIC_ENDPOINT, server_pub);
 
+    // now bring up the web api
+    // hold the 'app state' in this mutex, since it's all tokio async
     let state = Arc::new(AppState {
         wg_api: Mutex::new(wg_api),
         server_pub_key: server_pub.to_string(),
@@ -84,6 +88,8 @@ async fn handle_connect(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<HandshakeRequest>,
 ) -> Json<HandshakeResponse> {
+    //
+    // grab the octet and increment
     let mut octet = state.next_client_ip_octet.lock().unwrap();
     let assigned_ip_str = format!("10.50.0.{}", *octet);
     *octet += 1;
