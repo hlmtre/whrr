@@ -2,11 +2,12 @@ use axum::{extract::State, routing::post, Json, Router};
 use defguard_wireguard_rs::{
     host::Peer, key::Key, net::IpAddrMask, InterfaceConfiguration, WGApi, WireguardInterfaceApi,
 };
-use serde::{Deserialize, Serialize};
 use std::{
     str::FromStr,
     sync::{Arc, Mutex},
 };
+
+use whrr::{HandshakeRequest, HandshakeResponse};
 
 const WG_IFACE: &str = "wg0";
 const SERVER_PORT: u16 = 51820;
@@ -19,18 +20,6 @@ struct AppState {
     next_client_ip_octet: Mutex<u8>,
 }
 
-#[derive(Deserialize, Debug)]
-struct HandshakeRequest {
-    client_pub_key: String,
-}
-
-#[derive(Serialize, Debug)]
-struct HandshakeResponse {
-    server_pub_key: String,
-    client_assigned_ip: String,
-    endpoint: String,
-}
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -40,7 +29,8 @@ async fn main() -> anyhow::Result<()> {
     wg_api.create_interface()?;
 
     let server_priv = Key::generate();
-    let server_pub = server_priv.clone();
+    let server_pub = server_priv.clone().public_key();
+
     let interface_config = InterfaceConfiguration {
         name: WG_IFACE.to_string(),
         prvkey: server_priv.to_string(),
@@ -51,6 +41,7 @@ async fn main() -> anyhow::Result<()> {
     };
     wg_api.configure_interface(&interface_config)?;
 
+    /*
     // we've created the interface, now we have to tell the system to bring it up
     std::process::Command::new("ip")
         .args(["link", "set", "up", "dev", WG_IFACE])
@@ -65,6 +56,7 @@ async fn main() -> anyhow::Result<()> {
             WG_IFACE,
         ])
         .output()?;
+    */
 
     println!("VPN Server UP at {} ({})", PUBLIC_ENDPOINT, server_pub);
 

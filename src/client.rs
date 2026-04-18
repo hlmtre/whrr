@@ -2,27 +2,17 @@ use defguard_wireguard_rs::{
     host::Peer, key::Key, net::IpAddrMask, InterfaceConfiguration, Kernel, WGApi,
     WireguardInterfaceApi,
 };
-use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+
+use whrr::{HandshakeRequest, HandshakeResponse};
 
 const SERVER_HTTP_URL: &str = "http://127.0.0.1:3000/connect";
 const CLIENT_IFACE: &str = "wg-client";
 
-#[derive(Serialize)]
-struct HandshakeRequest {
-    client_pub_key: String,
-}
-#[derive(Deserialize)]
-struct HandshakeResponse {
-    server_pub_key: String,
-    client_assigned_ip: String,
-    endpoint: String,
-}
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let private_key = Key::generate();
-    let public_key = private_key.clone();
+    let public_key = private_key.clone().public_key();
     let pub_key_str = public_key.to_string();
     println!("My Identity: {}", pub_key_str);
 
@@ -60,6 +50,7 @@ async fn main() -> anyhow::Result<()> {
     server_peer.endpoint = Some(resp.endpoint.parse()?);
     wg_api.configure_peer(&server_peer)?;
 
+    /*
     std::process::Command::new("ip")
         .args(["link", "set", "up", "dev", CLIENT_IFACE])
         .output()?;
@@ -72,6 +63,7 @@ async fn main() -> anyhow::Result<()> {
             CLIENT_IFACE,
         ])
         .output()?;
+    */
     std::process::Command::new("ip")
         .args(["route", "add", "10.50.0.0/24", "dev", CLIENT_IFACE])
         .output()?;
