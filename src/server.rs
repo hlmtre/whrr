@@ -12,7 +12,7 @@ use whrr::{HandshakeRequest, HandshakeResponse};
 const WG_IFACE: &str = "wg0";
 const SERVER_PORT: u16 = 51820;
 const SERVER_VPN_IP: &str = "10.50.0.1";
-const PUBLIC_ENDPOINT: &str = "127.0.0.1:51820";
+const PUBLIC_ENDPOINT: &str = "10.50.0.1:51820";
 
 struct AppState {
     wg_api: Mutex<WGApi>,
@@ -41,7 +41,6 @@ async fn main() -> anyhow::Result<()> {
     };
     wg_api.configure_interface(&interface_config)?;
 
-    /*
     // we've created the interface, now we have to tell the system to bring it up
     std::process::Command::new("ip")
         .args(["link", "set", "up", "dev", WG_IFACE])
@@ -56,7 +55,6 @@ async fn main() -> anyhow::Result<()> {
             WG_IFACE,
         ])
         .output()?;
-    */
 
     println!("VPN Server UP at {} ({})", PUBLIC_ENDPOINT, server_pub);
 
