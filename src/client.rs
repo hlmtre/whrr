@@ -50,7 +50,6 @@ async fn main() -> anyhow::Result<()> {
     server_peer.endpoint = Some(resp.endpoint.parse()?);
     wg_api.configure_peer(&server_peer)?;
 
-    /*
     std::process::Command::new("ip")
         .args(["link", "set", "up", "dev", CLIENT_IFACE])
         .output()?;
@@ -63,7 +62,6 @@ async fn main() -> anyhow::Result<()> {
             CLIENT_IFACE,
         ])
         .output()?;
-    */
     std::process::Command::new("ip")
         .args(["route", "add", "10.50.0.0/24", "dev", CLIENT_IFACE])
         .output()?;
