@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 use whrr::{HandshakeRequest, HandshakeResponse};
 
-const SERVER_HTTP_URL: &str = "http://10.50.0.1:3000/connect";
+const SERVER_HTTP_URL: &str = "http://10.45.0.242:3000/connect";
 const CLIENT_IFACE: &str = "wg-client";
 
 #[tokio::main]

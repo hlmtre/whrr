@@ -12,7 +12,7 @@ use whrr::{HandshakeRequest, HandshakeResponse};
 const WG_IFACE: &str = "wg0";
 const SERVER_PORT: u16 = 51820;
 const SERVER_VPN_IP: &str = "10.50.0.1";
-const PUBLIC_ENDPOINT: &str = "10.50.0.1:51820";
+const PUBLIC_ENDPOINT: &str = "10.45.0.242:51820";
 
 struct AppState {
     wg_api: Mutex<WGApi>,
